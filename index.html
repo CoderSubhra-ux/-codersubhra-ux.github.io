@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta name="monetag" content="1b626ab8eeca7ab2809160fa25c610b0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Making Software</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family: system-ui, -apple-system, sans-serif;}
+body{background:#0f172a;color:#fff;padding:16px;min-height:100vh;}
+.container{max-width:480px;margin:0 auto;}
+h2{font-size:22px;margin:10px 0;text-align:center;line-height:1.3;}
+.desc{background:#1e293b;padding:12px;border-radius:12px;font-size:14px;color:#cbd5e1;margin:12px 0;line-height:1.4;}
+input{width:100%;padding:14px;border-radius:12px;border:none;outline:none;font-size:16px;margin:10px 0;}
+.btn{width:100%;padding:14px;border-radius:12px;border:none;font-weight:700;font-size:16px;margin:6px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.green{background:#22c55e;color:#000;}
+.green:active{transform:scale(0.98);}
+.blue{background:#3b82f6;color:#fff;}
+.red{background:#ef4444;color:#fff;margin-top:8px;}
+.listBox{background:#1e293b;padding:10px;border-radius:12px;margin:8px 0;min-height:40px;}
+.nameTag{display:inline-flex;align-items:center;background:#334155;padding:6px 10px;border-radius:20px;margin:4px;font-size:14px;gap:6px;}
+.nameTag span.del{background:#ef4444;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;}
+.teamBox{background:#1e293b;padding:14px;border-radius:12px;margin:10px 0;display:none;}
+.teamBox h3{margin-bottom:8px;color:#22c55e;}
+.teamBox p{line-height:1.6;font-size:15px;}
+.topBar{display:flex;justify-content:space-between;align-items:center;}
+.langBtn{background:#334155;color:#fff;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;}
+.count{font-size:13px;color:#94a3b8;margin:4px 0;}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="topBar">
+<h2>---------Welcome To My Team Making Software---------</h2>
+<button class="langBtn" onclick="toggleLang()" id="langBtn">हिंदी</button>
+</div>
+<div class="desc" id="desc">Aap logo ki bhi ye Pareshani rhi hogi khelte waqt jab Team Banate hai Jhagda hota hai ki ye Meri side hoga wo Meri side... Bas Ap Sabhi Ladko Ka Name Likho or Team ka Bantwara Ye Khud kar Dega.</div>
+
+<input id="nameInput" placeholder="Sabhi Ladko ka Name Likhe Space Deker" />
+
+<button class="btn green" onclick="addNames()">Add Karo</button>
+<div class="count" id="count">Total Players: 0</div>
+<div class="listBox" id="listBox">Koi naam nahi joda gaya</div>
+<button class="btn red" onclick="clearAll()" id="clearBtn">🗑️ Sab Naam Delete Karo</button>
+
+<button class="btn green" onclick="makeTeams()">Fir se Team banana hai? [y] - Team Banao 🎲</button>
+
+<div class="teamBox" id="teamBox"></div>
+
+<button class="btn green" onclick="shareWhatsApp()">Team WhatsApp Pe Bhejo</button>
+<button class="btn blue" onclick="shareWebsite()">Website Share Karo</button>
+
+<div style="margin-top:14px;text-align:center;font-size:12px;color:#64748b;border:1px dashed #334155;padding:8px;border-radius:8px;">AD YAHAN LAGEGA - Monetag / AdSense Code</div>
+</div>
+<script>
+let players = JSON.parse(localStorage.getItem('team_players')||'[]');
+
+function save(){localStorage.setItem('team_players',JSON.stringify(players));}
+function render(){
+ const box=document.getElementById('listBox');
+ const count=document.getElementById('count');
+ count.textContent=`Total Players: ${players.length}`;
+ if(players.length===0){box.innerHTML='Koi naam nahi joda gaya';return;}
+ box.innerHTML=players.map((n,i)=>`<div class="nameTag">${n} <span class="del" onclick="removeOne(${i})">✕</span></div>`).join('');
+}
+function addNames(){
+ const input=document.getElementById('nameInput');
+ let txt=input.value.trim();
+ if(!txt){alert('Naam likho bhai!');return;}
+ let arr=txt.split(/[\s,]+/).map(s=>s.trim()).filter(s=>s.length>0);
+ arr.forEach(a=>{ if(!players.includes(a)) players.push(a); });
+ save(); render(); input.value='';
+}
+function removeOne(i){ players.splice(i,1); save(); render(); }
+function clearAll(){ if(confirm('Sab naam delete kar du?')){ players=[]; save(); render(); document.getElementById('teamBox').style.display='none'; } }
+function makeTeams(){
+ if(players.length<2){alert('Kam se kam 2 naam add karo!');return;}
+ let shuffled=[...players].sort(()=>0.5-Math.random());
+ let mid=Math.ceil(shuffled.length/2);
+ let teamA=shuffled.slice(0,mid);
+ let teamB=shuffled.slice(mid);
+ let box=document.getElementById('teamBox');
+ box.style.display='block';
+ box.innerHTML=`<h3>🔥 Team Ban Gayi! 🔥</h3><p><b>Team A (${teamA.length}):</b><br>${teamA.join(', ')}</p><br><p><b>Team B (${teamB.length}):</b><br>${teamB.join(', ')}</p>`;
+ box.scrollIntoView({behavior:'smooth'});
+}
+function shareWhatsApp(){
+ let box=document.getElementById('teamBox');
+ if(box.style.display==='none'){alert('Pehle Team Banao!');return;}
+ let text=box.innerText+"\n\nBanao apni team: "+location.href;
+ window.open("https://wa.me/?text="+encodeURIComponent(text));
+}
+function shareWebsite(){
+ let url=location.href;
+ if(navigator.share){navigator.share({title:'Team Banao',url:url});}
+ else{window.open("https://wa.me/?text="+encodeURIComponent("Mera Team Making Software dekho: "+url));}
+}
+function toggleLang(){ alert('Language toggle - aap Hindi me hi use karo bhai!'); }
+render();
+</script>
+</body>
+</html>
